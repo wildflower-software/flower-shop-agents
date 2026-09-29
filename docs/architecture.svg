@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 680 400" font-family="system-ui, -apple-system, Segoe UI, sans-serif" role="img" aria-label="The owner talks to one coordinator, which delegates to four narrow workers; risky actions return to the owner for approval">
+  <title>Flower shop worker-agent architecture</title>
+  <defs>
+    <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#5F5E5A"/></marker>
+  </defs>
+  <rect width="680" height="400" fill="#FFFFFF"/>
+  <rect x="240" y="30" width="200" height="44" rx="8" fill="#F1EFE8" stroke="#5F5E5A" stroke-width="1"/>
+  <text x="340" y="57" text-anchor="middle" font-size="14" font-weight="600" fill="#2C2C2A">You (owner)</text>
+  <line x1="340" y1="74" x2="340" y2="106" stroke="#5F5E5A" marker-end="url(#a)"/>
+  <rect x="190" y="110" width="300" height="56" rx="8" fill="#EEEDFE" stroke="#534AB7"/>
+  <text x="340" y="133" text-anchor="middle" font-size="14" font-weight="600" fill="#3C3489">Coordinator agent</text>
+  <text x="340" y="152" text-anchor="middle" font-size="12" fill="#534AB7">Daily brief, routes tasks</text>
+  <g fill="none" stroke="#5F5E5A">
+    <path d="M340 166V190H115V216" marker-end="url(#a)"/>
+    <path d="M265 190V216" marker-end="url(#a)"/>
+    <path d="M340 190H565V216" marker-end="url(#a)"/>
+    <path d="M415 190V216" marker-end="url(#a)"/>
+  </g>
+  <g font-size="14" font-weight="600" fill="#085041" text-anchor="middle">
+    <rect x="50" y="220" width="130" height="56" rx="8" fill="#E1F5EE" stroke="#0F6E56"/>
+    <rect x="200" y="220" width="130" height="56" rx="8" fill="#E1F5EE" stroke="#0F6E56"/>
+    <rect x="350" y="220" width="130" height="56" rx="8" fill="#E1F5EE" stroke="#0F6E56"/>
+    <rect x="500" y="220" width="130" height="56" rx="8" fill="#E1F5EE" stroke="#0F6E56"/>
+    <text x="115" y="243">Orders</text><text x="265" y="243">Inventory</text><text x="415" y="243">Marketing</text><text x="565" y="243">Books</text>
+  </g>
+  <g font-size="12" fill="#0F6E56" text-anchor="middle">
+    <text x="115" y="262">Custom requests</text><text x="265" y="262">Stems and waste</text><text x="415" y="262">Posts and emails</text><text x="565" y="262">Cash and margins</text>
+  </g>
+  <line x1="50" y1="300" x2="630" y2="300" stroke="#D3D1C7" stroke-dasharray="4 4"/>
+  <rect x="190" y="318" width="300" height="56" rx="8" fill="#FAEEDA" stroke="#854F0B"/>
+  <text x="340" y="341" text-anchor="middle" font-size="14" font-weight="600" fill="#633806">Approval gate</text>
+  <text x="340" y="360" text-anchor="middle" font-size="12" fill="#854F0B">Spend, send, publish: owner approves</text>
+</svg>
