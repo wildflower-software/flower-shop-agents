@@ -2,3 +2,4 @@ __pycache__/
 .env
 audit.jsonl
 .pytest_cache/
+.venv/

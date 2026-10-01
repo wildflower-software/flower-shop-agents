@@ -1,32 +1,28 @@
-"""Shop tools the workers can call.
+"""The shop's tools, served over MCP with FastMCP.
 
 In a real deployment these wrap your POS, email, calendar and supplier
 systems. Here they read and write a small in-memory shop so the example
 runs anywhere.
+
+The agents reach these tools through an MCP client, never by importing
+them. Run this file on its own to serve the same tools to any MCP client:
+
+    python -m shop_agents.tools
 """
 
 from __future__ import annotations
 
-from dataclasses import dataclass
 from datetime import date, timedelta
-from typing import Any, Callable
+from typing import Any
 
+from fastmcp import FastMCP
 
-@dataclass
-class Tool:
-    name: str
-    description: str
-    input_schema: dict[str, Any]
-    fn: Callable[..., Any]
-    requires_approval: bool = False
+mcp = FastMCP("flower-shop")
 
-    def spec(self) -> dict[str, Any]:
-        """The tool definition sent to the model."""
-        return {"name": self.name, "description": self.description, "input_schema": self.input_schema}
-
-
-def _schema(props: dict[str, Any], required: list[str] | None = None) -> dict[str, Any]:
-    return {"type": "object", "properties": props, "required": required or []}
+# Hints for MCP clients. The orchestrator does not trust them for safety:
+# what needs approval is decided in approval.py.
+READ_ONLY = {"readOnlyHint": True}
+OUTSIDE_WORLD = {"readOnlyHint": False, "openWorldHint": True}
 
 
 # --- Demo shop data ---------------------------------------------------------
@@ -58,90 +54,71 @@ SHOP: dict[str, Any] = {
 }
 
 
-# --- Tool functions ---------------------------------------------------------
+# --- Read-only tools --------------------------------------------------------
 
+@mcp.tool(annotations=READ_ONLY)
 def check_inventory() -> dict:
+    """Current stem counts, cost per stem and days of vase life left."""
     return SHOP["inventory"]
 
 
+@mcp.tool(annotations=READ_ONLY)
 def list_orders(due_within_days: int = 2) -> list:
+    """Orders due within N days."""
     cutoff = TODAY + timedelta(days=due_within_days)
     return [o for o in SHOP["orders"] if date.fromisoformat(o["due"]) <= cutoff]
 
 
+@mcp.tool(annotations=READ_ONLY)
 def list_inquiries() -> list:
+    """New customer inquiries from email, web and DMs."""
     return SHOP["inquiries"]
 
 
+@mcp.tool(annotations=READ_ONLY)
 def sales_summary() -> dict:
+    """Today's order count and revenue."""
     sales = SHOP["sales_today"]
     return {"orders": len(sales), "revenue": round(sum(sales), 2)}
 
 
+@mcp.tool(annotations=READ_ONLY)
 def upcoming_occasions(days: int = 14) -> list:
+    """Repeat customers with an occasion coming up."""
     cutoff = TODAY + timedelta(days=days)
     return [c for c in SHOP["customers_with_occasions"] if date.fromisoformat(c["date"]) <= cutoff]
 
 
+# --- Tools that commit money, customers or the brand ------------------------
+# Each takes a `reason`: one line for the owner explaining why.
+
+@mcp.tool(annotations=OUTSIDE_WORLD)
 def send_quote(to: str, amount: float, summary: str, reason: str = "") -> dict:
+    """Send a price quote to a customer."""
     SHOP["sent"].append({"type": "quote", "to": to, "amount": amount, "summary": summary})
     return {"sent": True}
 
 
-def place_wholesale_order(items: dict, reason: str = "") -> dict:
+@mcp.tool(annotations=OUTSIDE_WORLD)
+def place_wholesale_order(items: dict[str, int], reason: str = "") -> dict:
+    """Order stems from the wholesaler. items maps stem name to count."""
     SHOP["sent"].append({"type": "wholesale_order", "items": items})
     return {"placed": True}
 
 
+@mcp.tool(annotations=OUTSIDE_WORLD)
 def publish_post(text: str, reason: str = "") -> dict:
+    """Publish a social media post for the shop."""
     SHOP["sent"].append({"type": "post", "text": text})
     return {"published": True}
 
 
+@mcp.tool(annotations=OUTSIDE_WORLD)
 def send_customer_email(to: str, subject: str, body: str, reason: str = "") -> dict:
+    """Email a customer (reminders, follow-ups)."""
     SHOP["sent"].append({"type": "email", "to": to, "subject": subject})
     return {"sent": True}
 
 
-REASON = {"type": "string", "description": "One line for the owner explaining why."}
-
-TOOLS: dict[str, Tool] = {
-    t.name: t
-    for t in [
-        # Read-only: run immediately.
-        Tool("check_inventory", "Current stem counts, cost per stem and days of vase life left.", _schema({}), check_inventory),
-        Tool("list_orders", "Orders due within N days.", _schema({"due_within_days": {"type": "integer"}}), list_orders),
-        Tool("list_inquiries", "New customer inquiries from email, web and DMs.", _schema({}), list_inquiries),
-        Tool("sales_summary", "Today's order count and revenue.", _schema({}), sales_summary),
-        Tool("upcoming_occasions", "Repeat customers with an occasion coming up.", _schema({"days": {"type": "integer"}}), upcoming_occasions),
-        # Commits money, customers or the brand: queued for the owner.
-        Tool(
-            "send_quote",
-            "Send a price quote to a customer.",
-            _schema({"to": {"type": "string"}, "amount": {"type": "number"}, "summary": {"type": "string"}, "reason": REASON}, ["to", "amount", "summary"]),
-            send_quote,
-            requires_approval=True,
-        ),
-        Tool(
-            "place_wholesale_order",
-            "Order stems from the wholesaler. items maps stem name to count.",
-            _schema({"items": {"type": "object", "additionalProperties": {"type": "integer"}}, "reason": REASON}, ["items"]),
-            place_wholesale_order,
-            requires_approval=True,
-        ),
-        Tool(
-            "publish_post",
-            "Publish a social media post for the shop.",
-            _schema({"text": {"type": "string"}, "reason": REASON}, ["text"]),
-            publish_post,
-            requires_approval=True,
-        ),
-        Tool(
-            "send_customer_email",
-            "Email a customer (reminders, follow-ups).",
-            _schema({"to": {"type": "string"}, "subject": {"type": "string"}, "body": {"type": "string"}, "reason": REASON}, ["to", "subject", "body"]),
-            send_customer_email,
-            requires_approval=True,
-        ),
-    ]
-}
+if __name__ == "__main__":
+    mcp.run()

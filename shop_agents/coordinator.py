@@ -9,6 +9,8 @@ from __future__ import annotations
 
 from typing import Any
 
+from fastmcp import Client
+
 from .approval import ApprovalGate
 from .runner import MAX_TURNS, MODEL, run_worker
 from .workers import WORKERS
@@ -44,12 +46,12 @@ def _delegate_tools() -> list[dict[str, Any]]:
     ]
 
 
-def run_coordinator(client: Any, request: str, gate: ApprovalGate) -> str:
+async def run_coordinator(client: Any, shop: Client, request: str, gate: ApprovalGate) -> str:
     messages: list[dict[str, Any]] = [{"role": "user", "content": request}]
     tools = _delegate_tools()
 
     for _ in range(MAX_TURNS):
-        response = client.messages.create(
+        response = await client.messages.create(
             model=MODEL, max_tokens=2000, system=COORDINATOR_PROMPT, tools=tools, messages=messages
         )
         messages.append({"role": "assistant", "content": response.content})
@@ -62,7 +64,7 @@ def run_coordinator(client: Any, request: str, gate: ApprovalGate) -> str:
             if block.type != "tool_use":
                 continue
             worker = WORKERS[block.name.removeprefix("delegate_to_")]
-            report = run_worker(client, worker, block.input["task"], gate)
+            report = await run_worker(client, shop, worker, block.input["task"], gate)
             results.append({"type": "tool_result", "tool_use_id": block.id, "content": report})
         messages.append({"role": "user", "content": results})
 
