@@ -98,3 +98,11 @@ def test_coordinator_delegates_to_worker():
     answer = run_coordinator(client, "How did we do?", gate)
     assert answer == "Brief: 4 orders, $225."
     assert "books worker" in client.calls[1]["system"]
+
+
+def test_local_flag_points_client_at_local_server(monkeypatch):
+    import main
+
+    monkeypatch.delenv("ANTHROPIC_API_KEY", raising=False)
+    client = main.make_client(local=True)
+    assert str(client.base_url).startswith(main.LOCAL_URL)

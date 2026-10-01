@@ -2,11 +2,13 @@
 
     python main.py                 # morning brief
     python main.py "Quote the June wedding inquiry"
+    python main.py --local         # use a local model instead of the API
 """
 
 from __future__ import annotations
 
 import json
+import os
 import sys
 from pathlib import Path
 
@@ -17,6 +19,7 @@ from shop_agents.coordinator import MORNING_BRIEF, run_coordinator
 from shop_agents.tools import SHOP, TOOLS
 
 AUDIT_FILE = Path("audit.jsonl")
+LOCAL_URL = os.environ.get("SHOP_AGENTS_LOCAL_URL", "http://127.0.0.1:8080")
 
 
 def audit(event: dict) -> None:
@@ -33,9 +36,18 @@ def review_approvals(gate: ApprovalGate) -> None:
         gate.decide(action.id, approve=choice == "y", run=lambda a: TOOLS[a.tool].fn(**a.args))
 
 
+def make_client(local: bool) -> anthropic.Anthropic:
+    if local:
+        # Any server that speaks the Anthropic Messages API, e.g. llama.cpp's llama-server.
+        return anthropic.Anthropic(base_url=LOCAL_URL, api_key="local")
+    return anthropic.Anthropic()  # reads ANTHROPIC_API_KEY
+
+
 def main() -> None:
-    request = " ".join(sys.argv[1:]) or MORNING_BRIEF
-    client = anthropic.Anthropic()  # reads ANTHROPIC_API_KEY
+    args = sys.argv[1:]
+    local = "--local" in args
+    request = " ".join(a for a in args if a != "--local") or MORNING_BRIEF
+    client = make_client(local)
     gate = ApprovalGate(audit_log=audit)
 
     print(run_coordinator(client, request, gate))
