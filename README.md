@@ -40,6 +40,17 @@ Set `SHOP_AGENTS_MODEL` to choose a different model, in PydanticAI's `provider:m
 
 Each request runs as a Prefect flow. With no Prefect server configured, Prefect starts a temporary one for the run. Set `PREFECT_API_URL` (and `PREFECT_API_KEY` for Prefect Cloud) to keep the run history.
 
+### Run it on a local model
+
+No API key needed. Start any server that speaks the Anthropic Messages API, such as llama.cpp's `llama-server`, then pass `--local`:
+
+```bash
+llama-server -hf Qwen/Qwen3-8B-GGUF:Q4_K_M -c 16384 --jinja --port 8080   # in one terminal
+uv run python main.py --local                                              # in another
+```
+
+`--local` gives PydanticAI an Anthropic model whose `base_url` is `http://127.0.0.1:8080`; set `SHOP_AGENTS_LOCAL_URL` to use another address. Every agent then runs on the local model. Small local models are weaker at multi-step tool use than Claude, so expect rougher briefs. The allow-list and the approval gate still hold, because they are enforced in code.
+
 ### The tools are an MCP server
 
 By default the shop's MCP server runs inside `main.py`, connected in memory. It is also a standalone server that any MCP client can use:

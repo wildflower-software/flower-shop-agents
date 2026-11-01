@@ -131,3 +131,14 @@ def test_the_prefect_flow_queues_risky_actions_and_sends_nothing():
     assert answer == "A post is waiting for you."
     assert tools.SHOP["sent"] == []
     assert [a.tool for a in gate.open_items()] == ["publish_post"]
+
+
+def test_local_flag_points_the_model_at_the_local_server(monkeypatch):
+    import main
+    from shop_agents import runner
+
+    monkeypatch.delenv("ANTHROPIC_API_KEY", raising=False)
+    assert main.parse_args(["--local"]) == (main.MORNING_BRIEF, True)
+    assert main.parse_args(["Quote", "the", "wedding"]) == ("Quote the wedding", False)
+    model = runner.local_model()  # no API key needed
+    assert str(model.client.base_url).startswith(runner.LOCAL_URL)

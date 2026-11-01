@@ -28,8 +28,21 @@ from .approval import ApprovalGate
 from .workers import Worker
 
 MODEL = os.environ.get("SHOP_AGENTS_MODEL", "anthropic:claude-sonnet-5-5")
+LOCAL_URL = os.environ.get("SHOP_AGENTS_LOCAL_URL", "http://127.0.0.1:8080")
 MAX_TURNS = 8
 LIMITS = UsageLimits(request_limit=MAX_TURNS)
+
+
+def local_model() -> Any:
+    """A model on a local server that speaks the Anthropic Messages API, e.g. llama.cpp's llama-server.
+
+    The server runs whichever model it loaded, so the model name here is only a label.
+    No API key is needed; the placeholder keeps the client from looking for one.
+    """
+    from pydantic_ai.models.anthropic import AnthropicModel
+    from pydantic_ai.providers.anthropic import AnthropicProvider
+
+    return AnthropicModel("local", provider=AnthropicProvider(base_url=LOCAL_URL, api_key="local"))
 
 
 @dataclass

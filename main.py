@@ -2,6 +2,7 @@
 
     uv run python main.py                 # morning brief
     uv run python main.py "Quote the June wedding inquiry"
+    uv run python main.py --local         # use a local model instead of the API
 
 The agents are PydanticAI agents, run inside a Prefect flow. They get their tools
 from the shop's MCP server, which runs in this process by default. Set
@@ -21,7 +22,7 @@ from fastmcp import Client
 from shop_agents.approval import ApprovalGate
 from shop_agents.coordinator import MORNING_BRIEF
 from shop_agents.flows import handle_request
-from shop_agents.runner import call_mcp_tool, shop_server
+from shop_agents.runner import call_mcp_tool, local_model, shop_server
 
 AUDIT_FILE = Path("audit.jsonl")
 
@@ -42,10 +43,17 @@ async def review_approvals(gate: ApprovalGate) -> None:
                               run=lambda a: call_mcp_tool(shop, a.tool, a.args))
 
 
+def parse_args(argv: list[str]) -> tuple[str, bool]:
+    local = "--local" in argv
+    request = " ".join(a for a in argv if a != "--local") or MORNING_BRIEF
+    return request, local
+
+
 async def main() -> None:
-    request = " ".join(sys.argv[1:]) or MORNING_BRIEF
+    request, local = parse_args(sys.argv[1:])
     gate = ApprovalGate(audit_log=audit)
-    print(await handle_request(request, gate))  # reads ANTHROPIC_API_KEY
+    # The API model reads ANTHROPIC_API_KEY; --local needs no key.
+    print(await handle_request(request, gate, model=local_model() if local else None))
 
     if gate.open_items():
         print("\n--- Waiting for your approval ---")
