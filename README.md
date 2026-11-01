@@ -2,7 +2,7 @@
 
 A small, readable reference implementation of **worker-agent orchestration** for a small business, from [Wildflower Software](https://wildflowersoftware.com).
 
-One coordinator agent talks to the owner. It delegates to four narrow worker agents. The workers get their tools from an MCP server built with [FastMCP](https://gofastmcp.com). Anything that spends money, commits to a customer or goes public passes through an approval gate before it happens.
+One coordinator agent talks to the owner. It delegates to four narrow worker agents. The agents are built with [PydanticAI](https://pydantic.dev/docs/ai/) and run inside a [Prefect](https://www.prefect.io) flow. The workers get their tools from an MCP server built with [FastMCP](https://gofastmcp.com). Anything that spends money, commits to a customer or goes public passes through an approval gate before it happens.
 
 ![Architecture](docs/architecture.svg)
 
@@ -15,12 +15,13 @@ The flower shop is a teaching example. The same pattern runs a clinic front desk
 | `shop_agents/workers.py` | The four workers: a job description and an allow-list of tools each |
 | `shop_agents/tools.py` | The shop's tools as a FastMCP server |
 | `shop_agents/approval.py` | The approval gate, the list of tools that run without approval, and the audit trail |
-| `shop_agents/runner.py` | The tool-use loop for one worker, calling tools through an MCP client |
+| `shop_agents/runner.py` | Each worker as a PydanticAI agent: its MCP tools, filtered to its job and wrapped in the approval gate |
 | `shop_agents/coordinator.py` | The coordinator, whose only tools are the workers |
+| `shop_agents/flows.py` | The Prefect flow that runs a request: every model call and tool call is a task with retries |
 | `main.py` | Command-line entry point with interactive approvals |
 | `shop-ops/` | The shop's data side: sales, suppliers, ordering, and a scheduled weekly sales note. See [shop-ops/README.md](shop-ops/README.md) |
 | `render.yaml` | Render Blueprint for running `shop-ops` as an always-on worker |
-| `tests/` | Offline tests using a scripted fake client, no API key needed |
+| `tests/` | Offline tests using a scripted fake model, no API key needed |
 
 ## Run it
 
@@ -35,7 +36,9 @@ uv run python main.py "Quote the June wedding inquiry"  # any request
 
 After the coordinator answers, you'll be asked to approve or reject each queued action. Every decision is appended to `audit.jsonl`.
 
-Set `SHOP_AGENTS_MODEL` to choose a different Claude model.
+Set `SHOP_AGENTS_MODEL` to choose a different model, in PydanticAI's `provider:model` form (default `anthropic:claude-sonnet-5-5`).
+
+Each request runs as a Prefect flow. With no Prefect server configured, Prefect starts a temporary one for the run. Set `PREFECT_API_URL` (and `PREFECT_API_KEY` for Prefect Cloud) to keep the run history.
 
 ### The tools are an MCP server
 
@@ -53,7 +56,7 @@ To point the agents at a different server, set `SHOP_AGENTS_MCP` to its URL or s
 uv run pytest
 ```
 
-The tests run the real MCP server in memory with a scripted fake model. They check the guarantees that matter: read-only tools run immediately, risky tools are queued and never executed without approval, a rejected action never runs, a worker cannot call a tool outside its job, and a server cannot mark its own tool as safe.
+The tests run the real MCP server in memory with a scripted fake model (PydanticAI's `FunctionModel`); real model calls are blocked. They check the guarantees that matter: read-only tools run immediately, risky tools are queued and never executed without approval, a rejected action never runs, a worker cannot call a tool outside its job, a server cannot mark its own tool as safe, and the same holds inside a Prefect flow.
 
 ## Developer path
 
@@ -65,6 +68,8 @@ The tests run the real MCP server in memory with a scripted fake model. They che
 ## Design choices
 
 - **Narrow workers.** Each worker gets a short job description and only the tools that job needs. Narrow agents are easier to test, cheaper to run and easier to trust.
+- **The framework runs the loop; code keeps the rules.** PydanticAI handles the tool-use loop, retries and tool schemas. The allow-list and the approval gate are a toolset filter and a toolset wrapper in `runner.py`, so they hold whatever the framework or the model does.
+- **Every run leaves a record.** Inside a Prefect flow, each model call and each MCP call that runs is a task with retries and a line in the run history. A queued action never reaches the server, so it never becomes a task.
 - **The coordinator has no direct access.** Its only tools are the workers, so every real action flows through a worker's allow-list and the gate.
 - **Approval is enforced in code, not in the prompt.** The model is told about approvals, but the gate is what actually stops an action.
 - **The server describes tools; the orchestrator decides what's safe.** MCP tools carry hints like `readOnlyHint`, but the MCP spec says clients should treat them as untrusted. The list of tools that run without approval lives in `approval.py`, and any tool not on it waits for the owner.

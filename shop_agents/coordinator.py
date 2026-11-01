@@ -9,10 +9,11 @@ from __future__ import annotations
 
 from typing import Any
 
-from fastmcp import Client
+from pydantic_ai import Agent, RunContext
+from pydantic_ai.toolsets import FunctionToolset
 
 from .approval import ApprovalGate
-from .runner import MAX_TURNS, MODEL, run_worker
+from .runner import LIMITS, MODEL, ShopDeps, durability, worker_agent
 from .workers import WORKERS
 
 COORDINATOR_PROMPT = """
@@ -31,41 +32,42 @@ MORNING_BRIEF = (
 )
 
 
-def _delegate_tools() -> list[dict[str, Any]]:
-    return [
-        {
-            "name": f"delegate_to_{name}",
-            "description": f"Send a task to the {name} worker. {w.job}",
-            "input_schema": {
-                "type": "object",
-                "properties": {"task": {"type": "string", "description": "A clear, self-contained task."}},
-                "required": ["task"],
-            },
-        }
-        for name, w in WORKERS.items()
-    ]
+def _delegate_to(agent: Agent[ShopDeps, str]):
+    async def delegate(ctx: RunContext[ShopDeps], task: str) -> str:
+        """The worker shares the run's approval gate and usage limits."""
+        result = await agent.run(task, deps=ctx.deps, usage=ctx.usage, usage_limits=LIMITS)
+        return result.output
+
+    return delegate
 
 
-async def run_coordinator(client: Any, shop: Client, request: str, gate: ApprovalGate) -> str:
-    messages: list[dict[str, Any]] = [{"role": "user", "content": request}]
-    tools = _delegate_tools()
+def coordinator_agent(*, model: Any = None, worker_model: Any = None, server: Any = None,
+                      durable: bool = False) -> Agent[ShopDeps, str]:
+    """The coordinator, with one delegate_to_<worker> tool per worker."""
+    delegates = FunctionToolset[ShopDeps](id="delegates")
 
-    for _ in range(MAX_TURNS):
-        response = await client.messages.create(
-            model=MODEL, max_tokens=2000, system=COORDINATOR_PROMPT, tools=tools, messages=messages
+    for name, worker in WORKERS.items():
+        agent = worker_agent(worker, model=worker_model or model, server=server, durable=durable)
+        delegates.add_function(
+            _delegate_to(agent),
+            name=f"delegate_to_{name}",
+            description=f"Send a clear, self-contained task to the {name} worker. {worker.job}",
         )
-        messages.append({"role": "assistant", "content": response.content})
 
-        if response.stop_reason != "tool_use":
-            return "".join(b.text for b in response.content if b.type == "text")
+    return Agent(
+        model or MODEL,
+        name="coordinator",
+        deps_type=ShopDeps,
+        output_type=str,
+        instructions=COORDINATOR_PROMPT,
+        # The worker's own model and tool calls are the durable steps, so the
+        # delegate call itself is not wrapped in a Prefect task.
+        toolsets=[delegates.with_metadata(prefect=False)],
+        capabilities=durability() if durable else [],
+        defer_model_check=True,
+    )
 
-        results = []
-        for block in response.content:
-            if block.type != "tool_use":
-                continue
-            worker = WORKERS[block.name.removeprefix("delegate_to_")]
-            report = await run_worker(client, shop, worker, block.input["task"], gate)
-            results.append({"type": "tool_result", "tool_use_id": block.id, "content": report})
-        messages.append({"role": "user", "content": results})
 
-    return "Coordinator stopped before finishing."
+async def run_coordinator(request: str, gate: ApprovalGate, **agent_options: Any) -> str:
+    result = await coordinator_agent(**agent_options).run(request, deps=ShopDeps(gate))
+    return result.output
