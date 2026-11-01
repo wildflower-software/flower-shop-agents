@@ -1,0 +1,19 @@
+variety,source,default_best_start,default_best_end,owner_best_start,owner_best_end,available_off_season,in_season_price_factor,off_season_price_factor,quality_note,research_basis
+MM_BOUQUET,vendor,01-01,12-31,,,1,1.00,1.00,Vendor-assembled; consistent,Mass-market supply is year-round; price set by vendor
+ALSTROEMERIA,import,03-01,11-30,,,1,0.95,1.10,Colombia/Ecuador year-round; holiday bumps,USDA AMS Boston terminal: bunched 10s from Colombia/Ecuador quoted year-round
+STATICE,local,07-01,09-30,,,0,0.85,1.00,PA field-grown summer statice is sturdy and cheap,Penn State Extension cut-flower updates: summer field crop
+STATICE,import,01-01,12-31,,,1,1.00,1.00,Import fills the rest of the year,Sold in ~1 lb / ~10-stem bunches year-round
+POMPON,local,09-01,10-31,,,0,0.80,1.00,Short-day crop; peak local mums in fall,Penn State Extension: chrysanthemums bloom after Jun 21 into autumn
+POMPON,import,01-01,12-31,,,1,1.00,1.00,Year-round greenhouse supply,Wholesale price lists show pompons year-round
+ROSE,import,06-01,11-30,,,1,0.90,1.25,Best value summer-fall; avoid late Jan to Feb 14 and the run-up to Mother's Day,USDA AMS: hybrid tea 50-60cm about $0.42-0.51/stem in 2025 off-peak
+ROSE,local,06-01,09-15,,,0,0.95,1.00,Local garden roses are short-lived and premium; use sparingly,Regional garden-rose season
+SPIDER_MUM,local,09-15,11-15,,,0,0.80,1.00,Fall local spider mums are top value,Penn State Extension: fall-blooming chrysanthemums
+SPIDER_MUM,import,01-01,12-31,,,1,1.00,1.00,Year-round greenhouse supply,Wholesale price lists show spider mums year-round
+HYDRANGEA_MM,import,04-01,10-31,,,1,0.95,1.15,Colombian hydrangea; winter heads smaller and pricier,Colombian hydrangea exported year-round
+HYDRANGEA_STEM,local,07-01,09-15,,,0,0.80,1.00,PA hydrangea peaks mid-July to August,Penn State Extension: hydrangeas flower mid-July to August
+HYDRANGEA_STEM,import,01-01,12-31,,,1,1.00,1.20,Premium import heads year-round,Colombian hydrangea exported year-round
+LEATHERLEAF,import,01-01,12-31,,,1,1.00,1.00,Florida leatherleaf is steady year-round,Florida fern production is year-round
+LIMONIUM,local,07-01,09-30,,,0,0.85,1.00,Local summer crop,Same family as statice; summer field crop
+LIMONIUM,import,01-01,12-31,,,1,1.00,1.00,Year-round import,Year-round import
+SOLIDAGO,local,08-01,10-15,,,0,0.75,1.00,Native goldenrod season; very cheap and good,Penn State Extension notes solidago as a strong cut crop; native bloom Aug-Oct
+SOLIDAGO,import,01-01,12-31,,,1,1.00,1.05,Year-round import solidago,Year-round import

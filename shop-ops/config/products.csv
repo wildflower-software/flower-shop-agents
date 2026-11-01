@@ -1,0 +1,14 @@
+sku,name,product_type,variety,stems_per_unit,list_price,active
+TWENTIES,"Twenties bouquet ($20)",bouquet_giftwrap,,,20.00,1
+FIFTEENS,"Fifteens bouquet ($15)",bouquet_giftwrap,,,15.00,1
+ARRANGEMENT,Custom arrangement (in vase),arrangement,,,,1
+STEM_ROSE,Rose - single stem,loose_stem,ROSE,1,3.50,1
+STEM_ALSTRO,Alstroemeria - single stem,loose_stem,ALSTROEMERIA,1,2.50,1
+STEM_SPIDER,Spider mum - single stem,loose_stem,SPIDER_MUM,1,2.50,1
+STEM_POMPON,Pom pon - single stem,loose_stem,POMPON,1,2.00,1
+STEM_HYDRANGEA,Hydrangea - single stem,loose_stem,HYDRANGEA_STEM,1,7.00,1
+STEM_SOLIDAGO,Solidago - single stem,loose_stem,SOLIDAGO,1,1.50,1
+BUNDLE_ROSE12,Rose bundle (12),bundle,ROSE,12,25.00,1
+BUNDLE_ALSTRO10,Alstroemeria bundle (10),bundle,ALSTROEMERIA,10,18.00,1
+BUNDLE_POMPON10,Pom pon bundle (10),bundle,POMPON,10,14.00,1
+BUNDLE_HYDRANGEA3,Hydrangea bundle (3),bundle,HYDRANGEA_STEM,3,18.00,1

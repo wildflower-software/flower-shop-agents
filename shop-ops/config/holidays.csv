@@ -1,0 +1,11 @@
+name,rule,demand_lift,window_before_days,window_after_days,order_lead_weeks,focus_varieties,active,notes
+Valentine's Day,fixed:02-14,6.0,3,0,4,ROSE,1,Biggest rose week; wholesale roses often 2-3x
+International Women's Day,fixed:03-08,1.4,1,0,3,ALSTROEMERIA|ROSE,1,
+Easter,easter:+0,1.8,3,0,3,HYDRANGEA_STEM|ALSTROEMERIA,1,
+Administrative Professionals Day,admin_professionals,1.5,1,0,3,,1,Wednesday of the last full week of April
+Mother's Day,nth:5:2:SUN,4.0,3,0,4,ROSE|HYDRANGEA_STEM,1,Second-biggest holiday; book early
+Graduation season,fixed:05-15,1.3,5,30,3,ROSE|SPIDER_MUM,1,Philadelphia-area graduations mid-May to mid-June
+Father's Day,nth:6:3:SUN,1.1,1,0,2,,1,
+Thanksgiving,nth:11:4:THU,1.5,3,0,3,SPIDER_MUM|POMPON|SOLIDAGO,1,Centerpieces; fall mums in season
+Christmas,fixed:12-25,1.6,10,0,4,,1,
+New Year's Eve,fixed:12-31,1.2,1,0,3,,1,

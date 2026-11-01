@@ -1,0 +1,5 @@
+code,name,kind,lead_time_days,holiday_lead_time_days,delivery_weekdays,freight_flat_per_delivery,freight_per_pack,min_order_dollars,data_source
+WHOLESALE_A,Wholesaler A (placeholder),wholesaler,14,28,MON|WED|FRI,25.00,0.00,150.00,synthetic
+IMPORT_B,Import box program (placeholder),importer,21,28,WED,45.00,1.25,300.00,synthetic
+LOCAL_FARM,Local farm co-op (placeholder),local_farm,14,21,MON|FRI,10.00,0.00,75.00,synthetic
+MASS_VENDOR,Mass-market bouquet vendor (placeholder),mass_market,14,28,MON|WED|FRI,15.00,0.00,100.00,synthetic

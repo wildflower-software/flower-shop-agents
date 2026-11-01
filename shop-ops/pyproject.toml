@@ -1,0 +1,26 @@
+[project]
+name = "shop-ops"
+version = "0.1.0"
+description = "Weekly flower-order recommendations for a Philadelphia flower shop"
+readme = "README.md"
+requires-python = ">=3.14"
+dependencies = [
+    "pydantic-ai-slim[anthropic,prefect]==2.64.0",
+    "prefect==3.9.1",
+]
+
+[project.optional-dependencies]
+dev = ["pytest==9.1.1"]
+
+[project.scripts]
+shop-ops = "shop_ops.cli:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/shop_ops"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

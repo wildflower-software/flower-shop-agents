@@ -1,0 +1,10 @@
+key,value,data_source,note
+location,"Philadelphia, PA",owner,Drives local vs import seasonality
+delivery_weekdays,MON|WED|FRI,owner,Days orders arrive for processing
+order_lead_weeks_normal,2,owner,Orders placed 2-4 weeks ahead
+order_lead_weeks_holiday,4,owner,
+open_weekdays,MON|TUE|WED|THU|FRI|SAT|SUN,synthetic,Replace with real open days
+min_customer_vase_days,4,owner,Stems must still give the customer this many days; shelf life = vase life minus this
+cooler_capacity_stems,2500,estimate,Placeholder until estimated from history (shop-ops estimate)
+presumed_busiest_days,FRI|SAT,owner,Presumed only; checked against real sales by check-busiest-days
+sms_max_chars,480,owner,Keep recommendation texts to about 3 SMS segments

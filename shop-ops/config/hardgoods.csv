@@ -1,0 +1,6 @@
+code,name,unit_cost,data_source
+FOOD_PACKET,Flower food packet,0.06,synthetic
+RIBBON,Ribbon,0.15,synthetic
+CLEAR_PAPER,Clear wrap paper,0.18,synthetic
+COLORED_PAPER,Colored wrap paper,0.28,synthetic
+VASE,Vase (arrangements),3.75,synthetic

@@ -1,0 +1,11 @@
+role,variety,preference_rank,active
+base,MM_BOUQUET,1,1
+filler,ALSTROEMERIA,1,1
+filler,STATICE,2,1
+filler,POMPON,3,1
+statement,ROSE,1,1
+statement,SPIDER_MUM,2,1
+statement,HYDRANGEA_MM,3,1
+green,LEATHERLEAF,1,1
+green,LIMONIUM,2,1
+green,SOLIDAGO,3,1

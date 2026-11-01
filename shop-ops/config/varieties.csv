@@ -1,0 +1,12 @@
+code,name,category,unit,default_vase_life_days,owner_vase_life_days,default_target_on_hand,owner_target_on_hand,notes
+MM_BOUQUET,Mass-market vendor bouquet,base,bouquet,7,,40,,Base of every twenties/fifteens bouquet
+ALSTROEMERIA,Alstroemeria,filler,stem,14,,100,,Filler; very long vase life
+STATICE,Statice,filler,stem,14,,60,,Filler; dries well so low waste
+POMPON,Pom pon (spray mum),filler,stem,14,,80,,Filler; cheapest in fall
+ROSE,Rose (standard),statement,stem,8,,75,,Statement; Valentine's and Mother's Day prices spike
+SPIDER_MUM,Spider mum,statement,stem,14,,40,,Statement; strong fall value
+HYDRANGEA_MM,Hydrangea (mass market),statement,stem,6,,30,,Statement option in recipes; shorter-lived budget grade
+HYDRANGEA_STEM,Hydrangea (by the stem),specialty,stem,7,,15,,Premium single stems; loose sale and arrangements only
+LEATHERLEAF,Leatherleaf fern,green,stem,21,,150,,Green; Florida-grown year round
+LIMONIUM,Limonium,green,stem,14,,80,,Green/airy filler
+SOLIDAGO,Solidago,green,stem,8,,60,,Green; local goldenrod season late summer to fall

@@ -1,0 +1,38 @@
+# Render Blueprint for the shop's always-on agents.
+# The shop-ops/ folder runs as one background worker. It owns the SQLite database on a persistent disk and runs the
+# scheduled Prefect flows. Render cron jobs can't attach a disk, so they can't be used here.
+# When the text desk (an inbound SMS web service) arrives, move the database to
+# Render Postgres so both services can reach it.
+services:
+  - type: worker
+    name: flower-shop-agents
+    runtime: python
+    rootDir: shop-ops     # build and start commands run here
+    buildFilter:
+      paths:
+        - shop-ops/**      # changes to the demo app don't redeploy it
+    region: virginia            # closest to Philadelphia; can't be changed later
+    plan: starter               # smallest paid instance
+    buildCommand: uv sync --frozen
+    startCommand: bash scripts/start-worker.sh
+    disk:
+      name: flower-shop-data
+      mountPath: /var/data
+      sizeGB: 1
+    envVars:
+      - key: SHOP_OPS_DB
+        value: /var/data/shop.db
+      - key: SHOP_OPS_TZ
+        value: America/New_York
+      - key: SHOP_OPS_WEEKLY_NOTE_CRON
+        value: "0 7 * * 1"      # Mondays 7:00 shop time
+      - key: SHOP_OPS_SEED_SYNTHETIC
+        value: "1"              # until real POS exports are loaded
+      - key: PYDANTIC_AI_NO_BANNER
+        value: "1"
+      - key: ANTHROPIC_API_KEY
+        sync: false             # entered once in the Render dashboard
+      - key: PREFECT_API_URL
+        sync: false             # your Prefect Cloud workspace URL
+      - key: PREFECT_API_KEY
+        sync: false

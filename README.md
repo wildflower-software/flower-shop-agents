@@ -18,6 +18,8 @@ The flower shop is a teaching example. The same pattern runs a clinic front desk
 | `shop_agents/runner.py` | The tool-use loop for one worker, calling tools through an MCP client |
 | `shop_agents/coordinator.py` | The coordinator, whose only tools are the workers |
 | `main.py` | Command-line entry point with interactive approvals |
+| `shop-ops/` | The shop's data side: sales, suppliers, ordering, and a scheduled weekly sales note. See [shop-ops/README.md](shop-ops/README.md) |
+| `render.yaml` | Render Blueprint for running `shop-ops` as an always-on worker |
 | `tests/` | Offline tests using a scripted fake client, no API key needed |
 
 ## Run it

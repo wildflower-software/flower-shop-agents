@@ -1,0 +1,3 @@
+event_date,name,demand_lift,window_before_days,window_after_days,order_lead_weeks,focus_varieties,active,notes
+2027-03-06,EXAMPLE: Philadelphia Flower Show opening weekend,1.3,1,1,3,,0,Set active=1 and confirm the real date
+2026-10-18,EXAMPLE: Home game (replace with real schedule),1.2,0,0,2,,0,One row per game day; set active=1 once confirmed
