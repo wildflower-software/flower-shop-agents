@@ -12,7 +12,6 @@ including any tool a server adds later.
 
 from __future__ import annotations
 
-import itertools
 import json
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
@@ -45,7 +44,7 @@ class ApprovalGate:
     """Decides whether a tool call runs now or waits for a human."""
 
     def __init__(self, audit_log: Callable[[dict], None] | None = None):
-        self._ids = itertools.count(1)
+        self._last_id = 0
         self.pending: dict[int, PendingAction] = {}
         self._audit = audit_log or (lambda event: None)
 
@@ -62,8 +61,9 @@ class ApprovalGate:
             self._audit({"event": "auto_run", "worker": worker, "tool": tool, "args": args})
             return result
 
+        self._last_id += 1
         action = PendingAction(
-            id=next(self._ids),
+            id=self._last_id,
             worker=worker,
             tool=tool,
             args=args,
